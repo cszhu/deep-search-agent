@@ -210,3 +210,10 @@ credentials*.json
 
 # Deployment metadata (contains live cloud resource IDs)
 deployment_metadata.json
+
+# Generated reports & evaluation artifacts
+reports/
+artifacts/
+*.mp3
+*.pdf
+

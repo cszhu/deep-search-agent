@@ -1,0 +1,12 @@
+.gcloudignore
+.git
+.gitignore
+.venv/
+reports/
+artifacts/
+*.mp3
+*.pdf
+frontend/node_modules/
+frontend/dist/
+__pycache__/
+*.pyc
