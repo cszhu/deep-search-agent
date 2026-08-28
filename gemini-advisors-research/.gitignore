@@ -207,3 +207,6 @@ tools/a2a-inspector/
 *.pem
 *-key.json
 credentials*.json
+
+# Deployment metadata (contains live cloud resource IDs)
+deployment_metadata.json

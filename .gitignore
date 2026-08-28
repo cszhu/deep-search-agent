@@ -64,3 +64,7 @@ my_env.tfvars
 # Eval run artifacts
 artifacts/
 **/artifacts/
+
+# Deployment metadata (contains live cloud resource IDs)
+deployment_metadata.json
+**/deployment_metadata.json
