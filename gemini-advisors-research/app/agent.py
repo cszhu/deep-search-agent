@@ -457,12 +457,12 @@ report_review_gate_agent = LlmAgent(
     description="Presents the drafted banking strategy report to the human reviewer and gates finalization via LongRunningFunctionTool.",
     instruction="""
     You are the Strategic Review Coordinator at Gemini Advisors.
-    Review the drafted report in `draft_cited_report`.
+    Review the finalized report in `final_cited_report`.
     Identify the single strategic recommendation committed to in the draft and prepare an executive summary.
-    Invoke the `request_report_approval` tool with the draft summary and the single recommendation.
-    This suspends the invocation for formal human reviewer sign-off before deliverables (Service Catalog, FAQ, PDF) are finalized.
+    Confirm that the complete report, Service Catalog, Customer FAQ, PDF export, and versioned Markdown file (`/reports/gemini_advisors_report_v*.md`) have been successfully generated and compiled.
+    Invoke the `request_report_approval` tool with the report summary and single recommendation for formal reviewer sign-off.
 
-    Once approval is received from `request_report_approval`, output a brief confirmation statement confirming sign-off so execution advances seamlessly to deliverable finalization.
+    Once approval is received from `request_report_approval`, output a brief confirmation statement confirming sign-off.
     """,
     tools=[request_report_approval_gate],
     output_key="draft_review_status",
@@ -518,7 +518,7 @@ deliverable_finalizer = LlmAgent(
 # --- AUTONOMOUS RESEARCH PIPELINE ---
 research_pipeline = SequentialAgent(
     name="research_pipeline",
-    description="Autonomous banking strategy research pipeline with separated search/filings agents, iterative refinement, single-recommendation drafting, report review gate, and deliverable finalization.",
+    description="Autonomous banking strategy research pipeline with separated search/filings agents, iterative refinement, single-recommendation drafting, deliverable finalization, and report review gate.",
     sub_agents=[
         section_planner,
         web_intelligence_researcher,
@@ -533,8 +533,8 @@ research_pipeline = SequentialAgent(
             ],
         ),
         draft_report_composer,
-        report_review_gate_agent,
         deliverable_finalizer,
+        report_review_gate_agent,
     ],
 )
 
@@ -551,7 +551,7 @@ interactive_planner_agent = LlmAgent(
     1. **Plan Formulation:** For any user request or strategic inquiry, immediately invoke `plan_generator` to construct a complete Four-Section Research Plan (1. Objectives, 2. Methods, 3. Evaluation Criteria, 4. Expected Outcomes).
     2. **Interactive Refinement:** If the user requests changes, invoke `plan_generator` to update the plan.
     3. **Gate 1 - Plan Approval Gate:** Whenever a four-section plan is ready or updated, invoke `request_plan_approval` with an executive summary. This suspends invocation until explicit human approval is received.
-    4. **Autonomous Delegation:** Once Gate 1 approval is granted, delegate execution to `research_pipeline`.
+    4. **Autonomous Delegation:** Once Gate 1 approval is granted, delegate execution to `research_pipeline`. If `research_pipeline` has already been delegated or is in progress/completed, do NOT invoke `transfer_to_agent` again.
 
     Current date: {datetime.datetime.now().strftime("%Y-%m-%d")}
     Do not perform direct web research yourself; strictly orchestrate through planning, approval gating, and delegation.
