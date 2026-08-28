@@ -45,6 +45,7 @@ from .mcp_server import (
     get_regulatory_capital_metrics,
 )
 from .pdf_exporter import export_report_to_pdf
+from .podcast_generator import process_report_podcast
 from .visualizer import process_report_visual_json
 from .markdown_exporter import export_report_to_markdown
 from .pdf_exporter import export_report_to_pdf
@@ -517,6 +518,46 @@ report_visualizer_agent = LlmAgent(
 )
 
 
+# 6c. Executive Audio Podcast Summary Tool and Agent
+def generate_podcast_tool(
+    callback_context: CallbackContext,
+) -> str:
+    """Generates a 3-5 minute executive audio podcast briefing (MP3) from the finalized research report using Gemini TTS, embedding an audio player into the HTML deliverable."""
+    current_report = (
+        callback_context.state.get("final_cited_report")
+        or callback_context.state.get("final_report_with_citations")
+        or callback_context.state.get("draft_cited_report", "")
+    )
+    exported_html_path = Path("reports/gemini_advisors_report_v4.html")
+    current_html = ""
+    if exported_html_path.exists():
+        current_html = exported_html_path.read_text(encoding="utf-8")
+
+    podcast_res = process_report_podcast(current_report, current_html, output_dir="reports")
+    callback_context.state["podcast_audio_path"] = podcast_res.get("audio_path")
+    callback_context.state["podcast_script"] = podcast_res.get("script")
+
+    if current_html and "updated_html" in podcast_res:
+        exported_html_path.write_text(podcast_res["updated_html"], encoding="utf-8")
+
+    logging.info(f"Podcast audio successfully generated: {podcast_res.get('audio_path')}")
+    return f"Successfully generated 3-5 minute executive audio podcast briefing at {podcast_res.get('audio_path')} and embedded audio player in HTML deliverable."
+
+
+report_podcast_agent = LlmAgent(
+    model=config.worker_model,
+    name="report_podcast_agent",
+    description="Generates a 3-5 minute executive audio podcast summary of the strategic report using Gemini TTS voices and embeds the player in HTML deliverables.",
+    instruction="""
+    You are the Executive Audio Producer at Gemini Advisors.
+    Review the finalized report in `final_cited_report`.
+    Invoke `generate_podcast_tool` to synthesize a 3-5 minute conversational executive briefing between two financial strategists (Alex & Morgan) using high-fidelity Gemini TTS voices, and embed the audio player into the HTML report package.
+    """,
+    tools=[generate_podcast_tool],
+    output_key="podcast_status",
+)
+
+
 # 8. Gate 2: Draft Report Reviewer Agent (HITL Gate)
 report_review_gate_agent = LlmAgent(
     model=config.worker_model,
@@ -585,7 +626,7 @@ deliverable_finalizer = LlmAgent(
 # --- AUTONOMOUS RESEARCH PIPELINE ---
 research_pipeline = SequentialAgent(
     name="research_pipeline",
-    description="Autonomous banking strategy research pipeline with separated search/filings agents, iterative refinement, single-recommendation drafting, report visualization, deliverable finalization, and report review gate.",
+    description="Autonomous banking strategy research pipeline with separated search/filings agents, iterative refinement, single-recommendation drafting, report visualization, podcast audio generation, deliverable finalization, and report review gate.",
     sub_agents=[
         section_planner,
         web_intelligence_researcher,
@@ -602,6 +643,7 @@ research_pipeline = SequentialAgent(
         draft_report_composer,
         deliverable_finalizer,
         report_visualizer_agent,
+        report_podcast_agent,
         report_review_gate_agent,
     ],
 )
