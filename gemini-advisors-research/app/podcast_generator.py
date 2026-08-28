@@ -200,13 +200,14 @@ def synthesize_podcast_audio(script: List[Dict[str, str]], output_mp3_path: str)
     return output_mp3_path
 
 
-def process_report_podcast(report_text: str, report_html: str, output_dir: str = "reports") -> Dict[str, Any]:
+def process_report_podcast(report_text: str, report_html: str, output_dir: str = "reports", force_rebuild: bool = False) -> Dict[str, Any]:
     """Generates podcast audio summary for research report and embeds audio player into HTML deliverable.
 
     Args:
         report_text: Finalized markdown report text.
         report_html: Finalized HTML report text.
         output_dir: Directory to save podcast MP3 assets.
+        force_rebuild: If True, regenerates dialogue script and audio MP3 files even if they already exist.
 
     Returns:
         Dictionary containing podcast audio file path and updated HTML string with audio player.
@@ -218,12 +219,14 @@ def process_report_podcast(report_text: str, report_html: str, output_dir: str =
     assets_mp3_path = str(assets_dir / mp3_filename)
     root_mp3_path = str(Path(output_dir) / "gemini_advisors_report_v4_podcast.mp3")
 
-    # 1. Generate dialogue script
-    script = generate_podcast_script(report_text)
+    script = []
+    if force_rebuild or not (Path(assets_mp3_path).exists() and Path(assets_mp3_path).stat().st_size > 0):
+        # 1. Generate dialogue script
+        script = generate_podcast_script(report_text)
 
-    # 2. Synthesize audio MP3 files
-    synthesize_podcast_audio(script, assets_mp3_path)
-    synthesize_podcast_audio(script, root_mp3_path)
+        # 2. Synthesize audio MP3 files
+        synthesize_podcast_audio(script, assets_mp3_path)
+        synthesize_podcast_audio(script, root_mp3_path)
 
     # 3. Embed Audio Player in HTML Deliverable
     podcast_player_html = """
@@ -240,17 +243,14 @@ def process_report_podcast(report_text: str, report_html: str, output_dir: str =
         </div>
     """
 
-    if "<div class=\"podcast-player-card\">" not in report_html:
-        # Insert right after executive header
-        if "<div class=\"executive-header\">" in report_html:
-            updated_html = re.sub(
-                r"(<div class=\"executive-header\">.*?</div>)",
-                r"\1\n" + podcast_player_html,
-                report_html,
-                flags=re.DOTALL
+    if '<div class="podcast-player-card">' not in report_html:
+        if '<div class="executive-header">' in report_html:
+            updated_html = report_html.replace(
+                '<div class="executive-header">',
+                '<div class="executive-header">\n' + podcast_player_html
             )
         else:
-            updated_html = podcast_player_html + "\n" + report_html
+            updated_html = podcast_player_html + '\n' + report_html
     else:
         updated_html = report_html
 
