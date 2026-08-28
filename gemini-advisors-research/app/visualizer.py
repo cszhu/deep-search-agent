@@ -238,7 +238,8 @@ def process_report_visual_json(json_spec_str: str, report_markdown: str) -> str:
             }
         }
 
-    updated_md = report_markdown
+    # Strip any existing infographic image tags to prevent duplication on re-exports/retries
+    updated_md = re.sub(r"\n*!\[[^\]]*\]\(assets/[^)]+_infographic\.png\)\n*", "\n\n", report_markdown)
 
     # Render each section's graphic and insert into Markdown
     for idx, (sec_id, item) in enumerate(spec_data.items()):
@@ -251,6 +252,11 @@ def process_report_visual_json(json_spec_str: str, report_markdown: str) -> str:
 
         file_name = f"{sec_id}_infographic.png"
         img_path = assets_dir / file_name
+
+        # Skip if this image asset is already placed in updated_md
+        rel_path = f"assets/{file_name}"
+        if rel_path in updated_md:
+            continue
 
         try:
             render_white_theme_chart(chart_type, chart_data, str(img_path))
