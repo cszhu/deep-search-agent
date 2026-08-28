@@ -48,17 +48,23 @@ def render_white_theme_chart(chart_type: str, data: Dict[str, Any], output_path:
     subtitle = data.get("subtitle", "Gemini Advisors FIG Practice")
 
     if chart_type in ["bar_chart", "capital_benchmarks"]:
-        labels = data.get("labels", ["CET1 Ratio", "Total Capital", "eSLR Ratio", "LCR Ratio"])
         target_vals = data.get("target_values", [13.5, 15.0, 6.5, 125.0])
         peer_vals = data.get("peer_values", [14.8, 16.4, 6.8, 140.0])
         min_vals = data.get("min_values", [4.5, 8.0, 5.0, 100.0])
 
+        provided_labels = data.get("labels")
+        if provided_labels and len(provided_labels) == len(target_vals):
+            labels = provided_labels
+        else:
+            default_labels = ["CET1 Ratio", "Total Capital", "eSLR Ratio", "LCR Ratio", "NSFR Ratio", "Tier-1 Cap"]
+            labels = default_labels[:len(target_vals)] if len(target_vals) <= len(default_labels) else [f"Metric {i+1}" for i in range(len(target_vals))]
+
         x = np.arange(len(labels))
         width = 0.25
 
-        ax.bar(x - width, min_vals, width, label="Regulatory Min", color="#94a3b8")
-        ax.bar(x, target_vals, width, label="Project Target", color="#2563eb")
-        ax.bar(x + width, peer_vals, width, label="Tier-1 Peer Avg", color="#0f172a")
+        ax.bar(x - width, min_vals[:len(labels)], width, label="Regulatory Min", color="#94a3b8")
+        ax.bar(x, target_vals[:len(labels)], width, label="Project Target", color="#2563eb")
+        ax.bar(x + width, peer_vals[:len(labels)], width, label="Tier-1 Peer Avg", color="#0f172a")
 
         ax.set_ylabel("Percentage (%)", fontsize=10, fontweight="bold", color="#0f172a")
         ax.set_xticks(x)
@@ -67,16 +73,23 @@ def render_white_theme_chart(chart_type: str, data: Dict[str, Any], output_path:
         ax.grid(axis="y", linestyle="--", alpha=0.3, color="#cbd5e1")
 
     elif chart_type in ["donut_chart", "revenue_mix"]:
-        labels = data.get("labels", ["Underwriting & M&A", "Depository Sweeps", "TXSE Execution", "Wealth Mgmt"])
         sizes = data.get("values", [35, 25, 25, 15])
-        colors = ["#2563eb", "#0f172a", "#3b82f6", "#64748b"]
+        provided_labels = data.get("labels")
+        if provided_labels and len(provided_labels) == len(sizes):
+            labels = provided_labels
+        else:
+            default_labels = ["Underwriting & M&A", "Depository Sweeps", "TXSE Execution", "Wealth Mgmt", "Advisory Services", "Trading Operations"]
+            labels = default_labels[:len(sizes)] if len(sizes) <= len(default_labels) else [f"Stream {i+1}" for i in range(len(sizes))]
+
+        palette = ["#2563eb", "#0f172a", "#3b82f6", "#64748b", "#0284c7", "#475569"]
+        colors = palette[:len(sizes)] if len(sizes) <= len(palette) else palette * (len(sizes) // len(palette) + 1)
 
         wedges, texts, autotexts = ax.pie(
             sizes,
             labels=labels,
             autopct="%1.1f%%",
             startangle=140,
-            colors=colors,
+            colors=colors[:len(sizes)],
             wedgeprops=dict(width=0.4, edgecolor="#ffffff", linewidth=2),
             textprops=dict(color="#0f172a", fontweight="bold", fontsize=9),
         )
@@ -133,6 +146,39 @@ def render_white_theme_chart(chart_type: str, data: Dict[str, Any], output_path:
     return output_path
 
 
+def _normalize_spec_data(spec_data: Any) -> Dict[str, Dict[str, Any]]:
+    """Normalizes any JSON structure (dict, list, nested keys) into a standardized dict mapping section_ids to chart dicts."""
+    normalized: Dict[str, Dict[str, Any]] = {}
+
+    if isinstance(spec_data, list):
+        items = spec_data
+    elif isinstance(spec_data, dict):
+        # Look for list wrappers like "sections", "charts", "visuals", "items"
+        for wrapper_key in ["sections", "charts", "visuals", "items", "infographics"]:
+            if wrapper_key in spec_data and isinstance(spec_data[wrapper_key], list):
+                items = spec_data[wrapper_key]
+                break
+        else:
+            # Directly a dict mapping section keys to chart specs
+            for k, v in spec_data.items():
+                if isinstance(v, dict):
+                    normalized[str(k)] = v
+                elif isinstance(v, list):
+                    for idx, sub_v in enumerate(v):
+                        if isinstance(sub_v, dict):
+                            normalized[f"{k}_{idx+1}"] = sub_v
+            return normalized
+    else:
+        return {}
+
+    for idx, item in enumerate(items):
+        if isinstance(item, dict):
+            sec_id = item.get("section_id") or item.get("section") or f"section{idx+1}"
+            normalized[str(sec_id)] = item
+
+    return normalized
+
+
 def process_report_visual_json(json_spec_str: str, report_markdown: str) -> str:
     """Parses JSON visual specification from report_visualizer_agent and injects generated white-theme images into Markdown.
 
@@ -147,12 +193,15 @@ def process_report_visual_json(json_spec_str: str, report_markdown: str) -> str:
     assets_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        # Strip potential ```json markdown blocks from model output
         clean_json = re.sub(r"^```json\s*", "", json_spec_str.strip(), flags=re.MULTILINE)
         clean_json = re.sub(r"```$", "", clean_json.strip(), flags=re.MULTILINE)
-        spec_data = json.loads(clean_json)
+        raw_data = json.loads(clean_json)
+        spec_data = _normalize_spec_data(raw_data)
     except Exception as e:
         logging.warning(f"Failed to parse visual JSON spec: {e}. Falling back to default visual specs.")
+        spec_data = {}
+
+    if not spec_data:
         spec_data = {
             "section1": {
                 "chart_type": "capital_benchmarks",
@@ -193,8 +242,13 @@ def process_report_visual_json(json_spec_str: str, report_markdown: str) -> str:
 
     # Render each section's graphic and insert into Markdown
     for sec_id, item in spec_data.items():
+        if not isinstance(item, dict):
+            continue
         chart_type = item.get("chart_type", "bar_chart")
         chart_data = item.get("data", {})
+        if not isinstance(chart_data, dict):
+            chart_data = {}
+
         file_name = f"{sec_id}_infographic.png"
         img_path = assets_dir / file_name
 

@@ -44,3 +44,23 @@ def test_process_report_visual_json():
     updated_md = process_report_visual_json(json_spec, sample_md)
     assert "assets/section1_infographic.png" in updated_md
     assert Path("reports/assets/section1_infographic.png").exists()
+
+
+def test_process_report_visual_json_list_input():
+    # Test list of objects JSON spec input
+    json_list_spec = """
+    [
+        {
+            "section_id": "sec_list_1",
+            "chart_type": "revenue_mix",
+            "data": {
+                "title": "Revenue Mix List Input Test",
+                "values": [40, 60]
+            }
+        }
+    ]
+    """
+    sample_md = "# BANK REPORT\n\n## 1. Revenue Analysis"
+    updated_md = process_report_visual_json(json_list_spec, sample_md)
+    assert "assets/sec_list_1_infographic.png" in updated_md
+    assert Path("reports/assets/sec_list_1_infographic.png").exists()
