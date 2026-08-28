@@ -182,6 +182,20 @@ def export_report_to_pdf(
             story.append(Spacer(1, 4))
             continue
 
+        img_match = re.match(r"^!\[([^\]]*)\]\(([^)]+)\)", stripped)
+        if img_match:
+            img_path_str = img_match.group(2)
+            full_img_path = Path("reports") / img_path_str if not Path(img_path_str).exists() else Path(img_path_str)
+            if full_img_path.exists():
+                try:
+                    from reportlab.platypus import Image as RLImage
+                    story.append(Spacer(1, 6))
+                    story.append(RLImage(str(full_img_path), width=6.0 * inch, height=3.375 * inch))
+                    story.append(Spacer(1, 6))
+                except Exception as img_err:
+                    pass
+            continue
+
         if stripped.startswith("# "):
             heading_text = stripped[2:].strip()
             formatted_text = _convert_markdown_to_reportlab_html(heading_text)

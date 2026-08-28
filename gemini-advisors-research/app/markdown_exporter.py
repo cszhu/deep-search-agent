@@ -243,6 +243,18 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             border-color: var(--primary-accent);
         }
 
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 28px auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.06);
+            border: 1px solid var(--border-color);
+            background-color: #ffffff;
+            padding: 10px;
+        }
+
         blockquote {
             border-left: 4px solid var(--primary-accent);
             padding: 12px 20px;

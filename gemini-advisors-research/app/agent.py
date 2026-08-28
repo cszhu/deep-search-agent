@@ -37,12 +37,15 @@ from google.genai import types as genai_types
 from pydantic import BaseModel, Field
 
 from .config import config
+from .markdown_exporter import export_report_to_markdown
 from .mcp_server import (
     get_company_filing,
     get_cross_border_mna_comparables,
     get_market_data,
     get_regulatory_capital_metrics,
 )
+from .pdf_exporter import export_report_to_pdf
+from .visualizer import process_report_visual_json
 from .markdown_exporter import export_report_to_markdown
 from .pdf_exporter import export_report_to_pdf
 
@@ -450,6 +453,40 @@ draft_report_composer = LlmAgent(
 )
 
 
+# 6b. Multimodal Infographic & Visualizer Tool and Agent
+def generate_infographics_tool(
+    callback_context: CallbackContext,
+    json_visual_spec: str,
+) -> str:
+    """Generates clean white-themed section infographics, financial graphs, and regulatory diagrams from a JSON visual specification, inserting them into the research report."""
+    current_report = callback_context.state.get("draft_cited_report", "")
+    updated_report = process_report_visual_json(json_visual_spec, current_report)
+    callback_context.state["draft_cited_report"] = updated_report
+    callback_context.state["visualized_report"] = updated_report
+    return "Successfully rendered white-themed section infographics and inserted visual asset links into the report."
+
+
+report_visualizer_agent = LlmAgent(
+    model=config.worker_model,
+    name="report_visualizer_agent",
+    description="Analyzes the drafted banking strategy report and generates JSON specifications for white-themed visual charts, infographics, and regulatory diagrams.",
+    instruction="""
+    You are the Senior Visual Architecture & Design Specialist at Gemini Advisors.
+    Review the drafted report in `draft_cited_report`.
+    Formulate a structured JSON visual specification detailing high-impact visual assets for each section on a clean white theme (#ffffff background, #0f172a text, #2563eb executive blue accents).
+
+    Specify visual assets for:
+    - section1: Capital & Liquidity Benchmarks (bar_chart comparing CET1, eSLR, LCR against regulatory minimums and Tier-1 peers)
+    - section2: Regulatory Architecture Matrix (comparison_matrix showing US OCC/Fed, EU ECB/DORA, and PRC PBOC/NFRA compliance enclaves)
+    - section3: Pro-Forma Revenue Mix (revenue_mix donut chart showing 5-year revenue distribution across Underwriting, Depository Sweeps, TXSE Execution, and Wealth Management)
+
+    Invoke the `generate_infographics_tool` with your JSON visual specification string.
+    """,
+    tools=[generate_infographics_tool],
+    output_key="visualizer_status",
+)
+
+
 # 8. Gate 2: Draft Report Reviewer Agent (HITL Gate)
 report_review_gate_agent = LlmAgent(
     model=config.worker_model,
@@ -518,7 +555,7 @@ deliverable_finalizer = LlmAgent(
 # --- AUTONOMOUS RESEARCH PIPELINE ---
 research_pipeline = SequentialAgent(
     name="research_pipeline",
-    description="Autonomous banking strategy research pipeline with separated search/filings agents, iterative refinement, single-recommendation drafting, deliverable finalization, and report review gate.",
+    description="Autonomous banking strategy research pipeline with separated search/filings agents, iterative refinement, single-recommendation drafting, report visualization, deliverable finalization, and report review gate.",
     sub_agents=[
         section_planner,
         web_intelligence_researcher,
@@ -533,6 +570,7 @@ research_pipeline = SequentialAgent(
             ],
         ),
         draft_report_composer,
+        report_visualizer_agent,
         deliverable_finalizer,
         report_review_gate_agent,
     ],
