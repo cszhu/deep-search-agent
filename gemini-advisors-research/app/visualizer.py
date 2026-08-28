@@ -118,6 +118,99 @@ def render_white_theme_chart(chart_type: str, data: Dict[str, Any], output_path:
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 0.9)
 
+    elif chart_type in ["balance_sheet_trajectory", "financial_trajectory"]:
+        years = data.get("years", ["Year 1", "Year 2", "Year 3", "Year 4", "Year 5"])
+        assets = data.get("assets", [4.8, 8.2, 12.5, 17.0, 22.5])
+        rotce = data.get("rotce", [12.0, 14.8, 17.4, 19.5, 22.6])
+
+        x = np.arange(len(years))
+        width = 0.35
+
+        rects = ax.bar(x, assets, width, label="Total Assets ($B)", color="#2563eb", alpha=0.9)
+        ax.set_ylabel("Total Assets ($ Billions)", fontsize=10, fontweight="bold", color="#2563eb")
+        ax.set_xticks(x)
+        ax.set_xticklabels(years, fontsize=9, fontweight="bold", color="#0f172a")
+
+        ax2 = ax.twinx()
+        ax2.plot(x, rotce, color="#0f172a", marker="o", linewidth=2.5, label="ROTCE (%)")
+        ax2.set_ylabel("ROTCE (%)", fontsize=10, fontweight="bold", color="#0f172a")
+        ax2.set_ylim(0, 30)
+
+        for rect in rects:
+            height = rect.get_height()
+            ax.annotate(f"${height:.1f}B",
+                        xy=(rect.get_x() + rect.get_width() / 2, height),
+                        xytext=(0, 3), textcoords="offset points",
+                        ha='center', va='bottom', fontsize=8, fontweight='bold', color="#1e40af")
+
+        for i, txt in enumerate(rotce):
+            ax2.annotate(f"{txt:.1f}%", (x[i], rotce[i]), xytext=(0, 6), textcoords="offset points",
+                         ha='center', fontsize=8, fontweight='bold', color="#0f172a")
+
+        lines1, labels1 = ax.get_legend_handles_labels()
+        lines2, labels2 = ax2.get_legend_handles_labels()
+        ax.legend(lines1 + lines2, labels1 + labels2, loc="upper left", frameon=True, facecolor="#ffffff", edgecolor="#cbd5e1", fontsize=8)
+        ax.grid(axis="y", linestyle="--", alpha=0.3, color="#cbd5e1")
+
+    elif chart_type in ["capital_buffer_stack", "buffer_stack"]:
+        categories = ["Baseline Min (4.50%)", "CCB (2.50%)", "SCB (3.20%)", "Mgmt Cushion (3.30%)"]
+        values = data.get("values", [4.50, 2.50, 3.20, 3.30])
+        colors = ["#94a3b8", "#3b82f6", "#1d4ed8", "#0f172a"]
+
+        y_pos = [0]
+        left = 0
+        for cat, val, col in zip(categories, values, colors):
+            ax.barh(y_pos, [val], left=left, color=col, height=0.45, label=f"{cat}")
+            if val >= 2.0:
+                ax.text(left + val / 2, 0, f"{val:.2f}%", ha="center", va="center", color="#ffffff", fontweight="bold", fontsize=9)
+            left += val
+
+        ax.set_yticks([])
+        ax.set_xlabel("Common Equity Tier 1 (CET1) Ratio (%) — Target: 13.50%", fontsize=10, fontweight="bold", color="#0f172a")
+        ax.set_xlim(0, 16)
+        ax.axvline(13.5, color="#dc2626", linestyle="--", linewidth=1.5, label="Target CET1 (13.50%)")
+        ax.legend(loc="upper right", frameon=True, facecolor="#ffffff", edgecolor="#cbd5e1", fontsize=8)
+        ax.grid(axis="x", linestyle="--", alpha=0.3, color="#cbd5e1")
+
+    elif chart_type in ["compliance_roadmap", "roadmap_timeline"]:
+        ax.axis("off")
+        stages = data.get("stages", [
+            "Phase 1: OCC & SEC Filings\n(Q1-Q2 2027)",
+            "Phase 2: Capital Inflow & BD\n(Q3 2027)",
+            "Phase 3: ECB/DORA Passport\n(Q4 2027)",
+            "Phase 4: CSRC QFI & PBOC\n(Q1 2028)"
+        ])
+        colors = ["#2563eb", "#3b82f6", "#0284c7", "#0f172a"]
+
+        for i, (stage, col) in enumerate(zip(stages, colors)):
+            x_pos = 0.12 + (i * 0.24)
+            ax.text(x_pos, 0.5, stage, fontsize=8, fontweight="bold", color="#ffffff", ha="center", va="center",
+                    bbox=dict(boxstyle="round,pad=0.6", facecolor=col, edgecolor="#cbd5e1", linewidth=1.0))
+            if i < len(stages) - 1:
+                ax.annotate("", xy=(x_pos + 0.11, 0.5), xytext=(x_pos + 0.08, 0.5),
+                            arrowprops=dict(arrowstyle="->", lw=2, color="#2563eb"))
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+
+    elif chart_type in ["service_catalog_grid", "service_offerings"]:
+        ax.axis("off")
+        services = data.get("services", [
+            {"id": "SVC-US-SEC-01", "name": "US Regulatory Clearance", "jur": "US (SEC/Fed)", "color": "#2563eb"},
+            {"id": "SVC-EU-DORA-02", "name": "EU DORA Audit", "jur": "EU (ECB/ESMA)", "color": "#0f172a"},
+            {"id": "SVC-CN-NFRA-03", "name": "China Market Access", "jur": "PRC (PBOC/SAFE)", "color": "#0284c7"}
+        ])
+
+        for i, s in enumerate(services):
+            x_pos = 0.16 + (i * 0.33)
+            ax.text(x_pos, 0.65, s["id"], fontsize=11, fontweight="bold", color=s["color"], ha="center")
+            ax.text(x_pos, 0.48, s["name"], fontsize=9, fontweight="bold", color="#0f172a", ha="center")
+            ax.text(x_pos, 0.32, s["jur"], fontsize=8, color="#64748b", ha="center",
+                    bbox=dict(boxstyle="round,pad=0.3", facecolor="#eff6ff", edgecolor="#bfdbfe", linewidth=0.8))
+            from matplotlib.patches import FancyBboxPatch
+            ax.add_patch(FancyBboxPatch((x_pos - 0.14, 0.20), 0.28, 0.58, boxstyle="round,pad=0.02,rounding_size=0.03", fill=False, edgecolor="#cbd5e1", lw=1.2))
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+
     else:
         # Default metric visual summary card
         ax.axis("off")
@@ -126,7 +219,8 @@ def render_white_theme_chart(chart_type: str, data: Dict[str, Any], output_path:
             x_pos = 0.15 + (i * 0.28)
             ax.text(x_pos, 0.55, v, fontsize=16, fontweight="bold", color="#2563eb", ha="center")
             ax.text(x_pos, 0.35, k, fontsize=9, color="#64748b", ha="center", fontweight="bold")
-            ax.add_patch(plt.Rectangle((x_pos - 0.12, 0.25), 0.24, 0.45, fill=False, edgecolor="#cbd5e1", lw=1.2, rx=0.02))
+            from matplotlib.patches import FancyBboxPatch
+            ax.add_patch(FancyBboxPatch((x_pos - 0.12, 0.25), 0.24, 0.45, boxstyle="round,pad=0.02,rounding_size=0.03", fill=False, edgecolor="#cbd5e1", lw=1.2))
         ax.set_xlim(0, 1)
         ax.set_ylim(0, 1)
 
@@ -135,7 +229,7 @@ def render_white_theme_chart(chart_type: str, data: Dict[str, Any], output_path:
     ax.set_title(subtitle, fontsize=9, color="#64748b", pad=10)
 
     # Clean up borders for chart axes
-    if chart_type not in ["comparison_matrix", "regulatory_flow", "metrics"]:
+    if chart_type not in ["comparison_matrix", "regulatory_flow", "compliance_roadmap", "roadmap_timeline", "service_catalog_grid", "service_offerings", "metrics"]:
         for spine in ax.spines.values():
             spine.set_color("#cbd5e1")
 
@@ -153,13 +247,11 @@ def _normalize_spec_data(spec_data: Any) -> Dict[str, Dict[str, Any]]:
     if isinstance(spec_data, list):
         items = spec_data
     elif isinstance(spec_data, dict):
-        # Look for list wrappers like "sections", "charts", "visuals", "items"
         for wrapper_key in ["sections", "charts", "visuals", "items", "infographics"]:
             if wrapper_key in spec_data and isinstance(spec_data[wrapper_key], list):
                 items = spec_data[wrapper_key]
                 break
         else:
-            # Directly a dict mapping section keys to chart specs
             for k, v in spec_data.items():
                 if isinstance(v, dict):
                     normalized[str(k)] = v
@@ -180,15 +272,7 @@ def _normalize_spec_data(spec_data: Any) -> Dict[str, Dict[str, Any]]:
 
 
 def process_report_visual_json(json_spec_str: str, report_markdown: str) -> str:
-    """Parses JSON visual specification from report_visualizer_agent and injects generated white-theme images into Markdown.
-
-    Args:
-        json_spec_str: Structured JSON string specifying infographics for sections.
-        report_markdown: The markdown content of the research report.
-
-    Returns:
-        Updated markdown content containing embedded image tags for generated visual assets.
-    """
+    """Parses JSON visual specification from report_visualizer_agent and injects generated white-theme images into Markdown."""
     assets_dir = Path("reports/assets")
     assets_dir.mkdir(parents=True, exist_ok=True)
 
@@ -208,32 +292,75 @@ def process_report_visual_json(json_spec_str: str, report_markdown: str) -> str:
                 "data": {
                     "title": "Section 1: Statutory Capital & Liquidity Benchmarks",
                     "subtitle": "Project LoneStar Target vs Peer Average & Regulatory Minimums",
-                    "labels": ["CET1 Ratio", "Total Capital", "eSLR", "LCR"],
-                    "target_values": [13.5, 15.0, 6.5, 125.0],
-                    "peer_values": [14.8, 16.4, 6.8, 140.0],
-                    "min_values": [4.5, 8.0, 5.0, 100.0]
+                    "labels": ["CET1 Ratio", "Total Capital", "eSLR", "LCR", "NSFR"],
+                    "target_values": [13.5, 15.0, 6.5, 138.5, 122.4],
+                    "peer_values": [14.8, 16.4, 6.8, 140.0, 116.2],
+                    "min_values": [4.5, 8.0, 5.0, 100.0, 100.0]
+                }
+            },
+            "section1_trajectory": {
+                "chart_type": "financial_trajectory",
+                "data": {
+                    "title": "Section 1.2: Pro-Forma Asset Expansion & ROTCE Trajectory",
+                    "subtitle": "5-Year Balance Sheet Growth ($4.8B -> $22.5B) & ROTCE Expansion (22.6%)",
+                    "years": ["Yr 1", "Yr 2", "Yr 3", "Yr 4", "Yr 5"],
+                    "assets": [4.80, 8.20, 12.50, 17.00, 22.50],
+                    "rotce": [12.0, 14.8, 17.4, 19.5, 22.6]
                 }
             },
             "section2": {
                 "chart_type": "regulatory_flow",
                 "data": {
                     "title": "Section 2: Tri-Jurisdictional Regulatory Architecture",
-                    "subtitle": "Reconciled Legal & Data Sovereignty Blueprint",
-                    "regions": ["United States (OCC/Fed)", "European Union (ECB)", "PRC (PBOC/NFRA)"],
+                    "subtitle": "Reconciled Legal & Data Sovereignty Blueprint across US, EU, and China",
+                    "regions": ["United States (OCC/Fed/SEC)", "European Union (ECB/DORA)", "PRC (PBOC/NFRA/SAFE)"],
                     "standards": [
-                        "Basel III Endgame & ERBA\nFDIC Depository / FINRA BD",
-                        "CRD VI & CRR3 Output Floor\nDORA Operational Resilience",
-                        "Rules on Capital Mgmt\nPIPL Data Local Vault"
+                        "Basel III Endgame & ERBA\nFDIC Depository / FINRA BD Member",
+                        "CRD VI & CRR3 Output Floor\nDORA Operational Resilience RTS",
+                        "Rules on Capital Management\nPIPL Local Data Vault & Quotas"
+                    ]
+                }
+            },
+            "section2_roadmap": {
+                "chart_type": "roadmap_timeline",
+                "data": {
+                    "title": "Section 2.3: Regulatory Compliance & Licensing Milestones",
+                    "subtitle": "Phase-Gated Multi-Jurisdiction Execution Roadmap",
+                    "stages": [
+                        "Phase 1: OCC & SEC Filings\n(Q1-Q2 2027)",
+                        "Phase 2: Capital Inflow & BD Setup\n(Q3 2027)",
+                        "Phase 3: ECB/DORA & EU Passport\n(Q4 2027)",
+                        "Phase 4: CSRC QFI & PBOC Gateway\n(Q1 2028)"
                     ]
                 }
             },
             "section3": {
                 "chart_type": "revenue_mix",
                 "data": {
-                    "title": "Section 3: Pro-Forma Revenue Mix",
-                    "subtitle": "5-Year Revenue Stream Distribution",
-                    "labels": ["Underwriting & M&A", "Depository Sweeps", "TXSE Execution", "Wealth Mgmt"],
+                    "title": "Section 3: Pro-Forma 5-Year Revenue Mix",
+                    "subtitle": "5-Year Revenue Stream Distribution ($585.0M Total)",
+                    "labels": ["Underwriting & M&A (35%)", "Depository Sweeps (25%)", "TXSE Execution (25%)", "Wealth Mgmt (15%)"],
                     "values": [35, 25, 25, 15]
+                }
+            },
+            "section3_buffers": {
+                "chart_type": "buffer_stack",
+                "data": {
+                    "title": "Section 3.2: Prudential Capital Buffer Stack",
+                    "subtitle": "Target CET1 Stack (13.50%) decomposed by Regulatory & Volatility Buffers",
+                    "values": [4.50, 2.50, 3.20, 3.30]
+                }
+            },
+            "service_catalog": {
+                "chart_type": "service_catalog_grid",
+                "data": {
+                    "title": "Part II: Gemini Advisors Institutional Advisory Service Offerings",
+                    "subtitle": "Standardized Advisory Packages for Institutional Clients",
+                    "services": [
+                        {"id": "SVC-US-SEC-01", "name": "Cross-Border Regulatory Advisory", "jur": "US (SEC/Fed)", "color": "#2563eb"},
+                        {"id": "SVC-EU-DORA-02", "name": "EU DORA ICT Operational Audit", "jur": "EU (ECB/ESMA)", "color": "#0f172a"},
+                        {"id": "SVC-CN-NFRA-03", "name": "China Market Access & Quotas", "jur": "PRC (PBOC/SAFE)", "color": "#0284c7"}
+                    ]
                 }
             }
         }

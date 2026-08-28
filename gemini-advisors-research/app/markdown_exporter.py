@@ -163,25 +163,29 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             border-collapse: separate;
             border-spacing: 0;
             margin: 28px 0;
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
             border: 1px solid var(--border-color);
             font-size: 14px;
+            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
         }
 
         th {
             background-color: var(--table-header-bg);
             color: var(--table-header-text);
-            font-weight: 600;
+            font-weight: 700;
             text-align: left;
-            padding: 14px 16px;
-            letter-spacing: 0.3px;
+            padding: 14px 18px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-size: 12px;
         }
 
         td {
-            padding: 12px 16px;
+            padding: 14px 18px;
             border-bottom: 1px solid var(--border-color);
             color: #334155;
+            line-height: 1.6;
         }
 
         tr:nth-child(even) td {
@@ -208,13 +212,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         pre {
             background-color: #0f172a;
             color: #f8fafc;
-            padding: 20px;
-            border-radius: 10px;
+            padding: 22px 24px;
+            border-radius: 12px;
             overflow-x: auto;
-            margin: 24px 0;
+            margin: 28px 0;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 13px;
-            line-height: 1.6;
+            font-size: 12.5px;
+            line-height: 1.5;
+            border-left: 4px solid var(--primary-accent);
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
         }
 
         pre code {
@@ -247,22 +253,34 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             max-width: 100%;
             height: auto;
             display: block;
-            margin: 28px auto;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.06);
+            margin: 32px auto;
+            border-radius: 14px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
             border: 1px solid var(--border-color);
             background-color: #ffffff;
-            padding: 10px;
+            padding: 12px;
         }
 
         blockquote {
             border-left: 4px solid var(--primary-accent);
-            padding: 12px 20px;
-            background-color: #f0f9ff;
+            padding: 14px 22px;
+            background-color: #eff6ff;
             color: #1e3a8a;
-            margin: 20px 0;
-            border-radius: 0 8px 8px 0;
+            margin: 24px 0;
+            border-radius: 0 10px 10px 0;
             font-style: italic;
+        }
+
+        .svc-badge {
+            display: inline-block;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-right: 6px;
+            letter-spacing: 0.5px;
         }
 
         @media print {
@@ -296,14 +314,20 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
 def render_markdown_to_html(markdown_text: str) -> str:
     """Converts raw markdown text to executive HTML using the markdown library."""
+    # Pre-process text: clean math/percentage escapes ($13.50\\%$ -> 13.50%)
+    cleaned_md = re.sub(r"\\+", "", markdown_text)
+    cleaned_md = re.sub(r"\$([0-9\.\%]+)\$", r"\1", cleaned_md)
+    # Format Service IDs with styled badges
+    cleaned_md = re.sub(r"\[(SVC-[A-Z0-9\-]+)\]", r'<span class="svc-badge">\1</span>', cleaned_md)
+
     if markdown:
         html_body = markdown.markdown(
-            markdown_text,
+            cleaned_md,
             extensions=["tables", "fenced_code", "toc", "nl2br"],
         )
     else:
         # Fallback simple line renderer if markdown module is absent
-        html_body = f"<pre>{markdown_text}</pre>"
+        html_body = f"<pre>{cleaned_md}</pre>"
 
     return HTML_TEMPLATE.replace("<!-- CONTENT_PLACEHOLDER -->", html_body)
 

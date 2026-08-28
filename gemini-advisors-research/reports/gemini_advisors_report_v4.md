@@ -9,9 +9,11 @@
 
 ### 1. Executive Summary & Strategic Rationale
 
+![Section 1.2: Pro-Forma Asset Expansion & ROTCE Trajectory](assets/section1_trajectory_infographic.png)
+
+
+
 ![Section 1: Statutory Capital & Liquidity Benchmarks](assets/section1_infographic.png)
-
-
 
 
 
@@ -70,9 +72,11 @@ The bank bridges three primary global capital corridors:
 
 ### 2. Multi-Jurisdictional Regulatory Analysis
 
+![Section 2.3: Regulatory Compliance & Licensing Milestones](assets/section2_roadmap_infographic.png)
+
+
+
 ![Section 2: Tri-Jurisdictional Regulatory Architecture](assets/section2_infographic.png)
-
-
 
 
 
@@ -101,6 +105,10 @@ The bank bridges three primary global capital corridors:
 * **FinCEN BSA/AML & OFAC:** Full continuous KYC/CIP/CDD pipelines under 31 CFR Chapter X, integrating real-time automated Suspicious Activity Report (SAR) XML generation.
 
 #### 2.2 European Union & United Kingdom Regulatory Integration
+
+![Part II: Gemini Advisors Institutional Advisory Service Offerings](assets/service_catalog_infographic.png)
+
+
 * **Frankfurt Credit Institution (`Lone Star Bank Europe AG`):** Directly licensed by the ECB and BaFin under Section 32 of the German Banking Act (KWG)  [ibinterviewquestions.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEkggFsXIx4zVWH3uV6IDn_9Yjc_o11TTjRm8YKk8ozBhXPYZSoinEMC7xvM4uhb3gkNvO0J5cfjeCZC4t5f8bsAgujGW9Pa7od8iW0xtaH422nQ3XyKPD0bCqQtBemhAs2huO0lVCUhTriBQ9wcGsvfBUgN2pj9a-RtFLw5sSh7OWfxflS0rZP6ieMuS7c6V_sYqXXEbpIz6GPFUWhHy8e-2I=), providing single-passport cross-border commercial and deposit banking across all 27 EU/EEA member states in strict accordance with CRD VI (Directive (EU) 2024/1619)  [ibinterviewquestions.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEkggFsXIx4zVWH3uV6IDn_9Yjc_o11TTjRm8YKk8ozBhXPYZSoinEMC7xvM4uhb3gkNvO0J5cfjeCZC4t5f8bsAgujGW9Pa7od8iW0xtaH422nQ3XyKPD0bCqQtBemhAs2huO0lVCUhTriBQ9wcGsvfBUgN2pj9a-RtFLw5sSh7OWfxflS0rZP6ieMuS7c6V_sYqXXEbpIz6GPFUWhHy8e-2I=) and CRR3 (Regulation (EU) 2024/1623)  [ibinterviewquestions.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEkggFsXIx4zVWH3uV6IDn_9Yjc_o11TTjRm8YKk8ozBhXPYZSoinEMC7xvM4uhb3gkNvO0J5cfjeCZC4t5f8bsAgujGW9Pa7od8iW0xtaH422nQ3XyKPD0bCqQtBemhAs2huO0lVCUhTriBQ9wcGsvfBUgN2pj9a-RtFLw5sSh7OWfxflS0rZP6ieMuS7c6V_sYqXXEbpIz6GPFUWhHy8e-2I=).
 * **London Investment Firm (`AeroTX Capital UK Ltd`):** Dual-authorized by the PRA and FCA as a 730k investment firm under FSMA  [ibinterviewquestions.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQEkggFsXIx4zVWH3uV6IDn_9Yjc_o11TTjRm8YKk8ozBhXPYZSoinEMC7xvM4uhb3gkNvO0J5cfjeCZC4t5f8bsAgujGW9Pa7od8iW0xtaH422nQ3XyKPD0bCqQtBemhAs2huO0lVCUhTriBQ9wcGsvfBUgN2pj9a-RtFLw5sSh7OWfxflS0rZP6ieMuS7c6V_sYqXXEbpIz6GPFUWhHy8e-2I=), delivering direct execution on the LSE and UK MTFs while complying with MiFID II / MiFIR transaction reporting (Article 26) and unbundled research rules.
 * **DORA Resilience & AMLA Directives:** Low-latency architectures comply with EU Digital Operational Resilience Act (DORA - Regulation (EU) 2022/2554) technical standards and European Anti-Money Laundering Authority (AMLA) 6AMLD reporting standards  [pwc.de](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQGLoa6qLEskgFx4TFc2JOFVGirO_SUw8bbyEYHsQKgRHq4McNUCMXTzvo60wb4CSjQA1dxJQc2LpZO_pu5obCzFfIGrw_CJWZviBnKoHesfZ8JZWoIQtuZ8YgthoHsM4WuRjXjPFqjHQGxZR_WQr_Zx7HVEX0QMsHvEGVK5Gj9F9gz4z4ALe9Cg8XImP92Bo2aTUFcZ90OhJX-kxhRf6UXeDEPTKpwhrLDyu6Rs2iH8tb5lSNu1wXjQJCv-8SdBWRLlzts0kTcguPEXnWN9). Remuneration strictly observes CRD VI Article 94 bonus caps (1:1 fixed-to-variable ratio, expandable to 2:1 upon shareholder approval, with 50% equity deferred over 5 years)  [dlapiper.com](https://vertexaisearch.cloud.google.com/grounding-api-redirect/AUZIYQElRTr9cWwg_D3hLfNVXchErEQPfGJoPS7_K4ZTB7tvtWZiWSafZqlvcJfARyPp7KW9IMAA8zWmSk3CmYY-O8JiDBKrRMdG9qaM8_vPnQGkYi2npPD7XEp5aXsjjF2kpyzASqsmMShLJ41vHde8oOFRxnI5fVabr13y1Mb9-7DFvjs55Ged1UHq6coKoiTnclpe8SxYzByrS58aTw==).
@@ -119,9 +127,11 @@ To resolve direct statutory conflicts between the **US CLOUD Act (18 U.S.C. § 2
 
 ### 3. Financial, Capital & Market Valuation Impacts
 
-![Section 3: Pro-Forma Revenue Mix](assets/section3_infographic.png)
+![Section 3.2: Prudential Capital Buffer Stack](assets/section3_buffers_infographic.png)
 
 
+
+![Section 3: Pro-Forma 5-Year Revenue Mix](assets/section3_infographic.png)
 
 
 
