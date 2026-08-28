@@ -167,6 +167,48 @@
           ]
         }
       }
+    },
+    {
+      "eval_case_id": "visual_infographic_generation",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Generate visual infographics and HTML section charts for a banking strategy report illustrating balance sheet expansion to $22.5B, CET1 capital stack (13.5%), and DORA/CRR3 regulatory compliance roadmap."
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "The agent generates dynamic visual infographics (balance sheet trajectory, capital buffer stack, compliance roadmap, service catalog grid) and embeds them within HTML report deliverables."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "audio_podcast_briefing",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Synthesize a 3 to 5 minute executive audio podcast summary and embed an HTML5 audio briefing player for Gemini Advisors' cross-border investment banking report."
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "The agent drafts a multi-speaker executive script (Alex and Morgan), synthesizes an MP3 podcast using Google Cloud Text-To-Speech (en-US-Journey voices), and embeds the audio player card into HTML deliverables."
+            }
+          ]
+        }
+      }
     }
   ]
 }
