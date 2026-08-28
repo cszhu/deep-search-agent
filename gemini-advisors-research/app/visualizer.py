@@ -241,7 +241,7 @@ def process_report_visual_json(json_spec_str: str, report_markdown: str) -> str:
     updated_md = report_markdown
 
     # Render each section's graphic and insert into Markdown
-    for sec_id, item in spec_data.items():
+    for idx, (sec_id, item) in enumerate(spec_data.items()):
         if not isinstance(item, dict):
             continue
         chart_type = item.get("chart_type", "bar_chart")
@@ -257,13 +257,24 @@ def process_report_visual_json(json_spec_str: str, report_markdown: str) -> str:
             rel_path = f"assets/{file_name}"
             img_tag = f"\n\n![{chart_data.get('title', 'Section Infographic')}]({rel_path})\n\n"
 
-            # Insert graphic near section header if available
-            sec_header_match = re.search(rf"(##\s+\d+\..*)", updated_md)
-            if sec_header_match:
-                header_pos = sec_header_match.end()
+            # Match section number or n-th ## / ### header
+            sec_num_match = re.search(r"\d+", sec_id)
+            sec_num = sec_num_match.group(0) if sec_num_match else str(idx + 1)
+
+            header_pattern = rf"(#+\s*(?:Section\s*)?{sec_num}[\.\s:][^\n]*)"
+            header_match = re.search(header_pattern, updated_md, re.IGNORECASE)
+
+            if header_match:
+                header_pos = header_match.end()
                 updated_md = updated_md[:header_pos] + img_tag + updated_md[header_pos:]
             else:
-                updated_md += img_tag
+                # Find all H2/H3 headers and insert after the idx-th header
+                all_headers = list(re.finditer(r"(^#+\s+[^\n]+)", updated_md, re.MULTILINE))
+                if idx < len(all_headers):
+                    header_pos = all_headers[idx].end()
+                    updated_md = updated_md[:header_pos] + img_tag + updated_md[header_pos:]
+                else:
+                    updated_md += img_tag
         except Exception as err:
             logging.warning(f"Failed to render graphic for section {sec_id}: {err}")
 

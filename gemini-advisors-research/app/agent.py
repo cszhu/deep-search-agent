@@ -459,25 +459,55 @@ def generate_infographics_tool(
     json_visual_spec: str,
 ) -> str:
     """Generates clean white-themed section infographics, financial graphs, and regulatory diagrams from a JSON visual specification, inserting them into the research report."""
-    current_report = callback_context.state.get("draft_cited_report", "")
+    current_report = (
+        callback_context.state.get("final_cited_report")
+        or callback_context.state.get("final_report_with_citations")
+        or callback_context.state.get("draft_cited_report", "")
+    )
     updated_report = process_report_visual_json(json_visual_spec, current_report)
+
+    callback_context.state["final_cited_report"] = updated_report
+    callback_context.state["final_report_with_citations"] = updated_report
     callback_context.state["draft_cited_report"] = updated_report
     callback_context.state["visualized_report"] = updated_report
-    return "Successfully rendered white-themed section infographics and inserted visual asset links into the report."
+
+    # Re-export Markdown (with versioning), HTML & PDF with embedded visuals
+    try:
+        md_res = export_report_to_markdown(
+            report_markdown=updated_report,
+            base_name="gemini_advisors_report",
+        )
+        callback_context.state["exported_md_path"] = md_res.get("file_path")
+        callback_context.state["exported_md_version"] = md_res.get("version")
+        logging.info(f"Visualized report exported to Markdown & HTML: {md_res.get('file_path')}")
+    except Exception as e:
+        logging.warning(f"Failed to re-export Markdown with visuals: {e}")
+
+    try:
+        pdf_res = export_report_to_pdf(
+            report_markdown=updated_report,
+            title="Gemini Advisors Strategic Banking Memorandum",
+        )
+        callback_context.state["exported_pdf_path"] = pdf_res.get("file_path")
+        logging.info(f"Visualized report exported to PDF: {pdf_res.get('file_path')}")
+    except Exception as e:
+        logging.warning(f"Failed to re-export PDF with visuals: {e}")
+
+    return "Successfully rendered white-themed section infographics, embedded visual asset links, and re-exported updated Markdown, HTML, and PDF deliverables."
 
 
 report_visualizer_agent = LlmAgent(
     model=config.worker_model,
     name="report_visualizer_agent",
-    description="Analyzes the drafted banking strategy report and generates JSON specifications for white-themed visual charts, infographics, and regulatory diagrams.",
+    description="Analyzes the finalized banking strategy report and generates JSON specifications for white-themed visual charts, infographics, and regulatory diagrams.",
     instruction="""
     You are the Senior Visual Architecture & Design Specialist at Gemini Advisors.
-    Review the drafted report in `draft_cited_report`.
+    Review the finalized report in `final_cited_report`.
     Formulate a structured JSON visual specification detailing high-impact visual assets for each section on a clean white theme (#ffffff background, #0f172a text, #2563eb executive blue accents).
 
     Specify visual assets for:
     - section1: Capital & Liquidity Benchmarks (bar_chart comparing CET1, eSLR, LCR against regulatory minimums and Tier-1 peers)
-    - section2: Regulatory Architecture Matrix (comparison_matrix showing US OCC/Fed, EU ECB/DORA, and PRC PBOC/NFRA compliance enclaves)
+    - section2: Regulatory Architecture Matrix (regulatory_flow showing US OCC/Fed, EU ECB/DORA, and PRC PBOC/NFRA compliance enclaves)
     - section3: Pro-Forma Revenue Mix (revenue_mix donut chart showing 5-year revenue distribution across Underwriting, Depository Sweeps, TXSE Execution, and Wealth Management)
 
     Invoke the `generate_infographics_tool` with your JSON visual specification string.
@@ -570,8 +600,8 @@ research_pipeline = SequentialAgent(
             ],
         ),
         draft_report_composer,
-        report_visualizer_agent,
         deliverable_finalizer,
+        report_visualizer_agent,
         report_review_gate_agent,
     ],
 )
