@@ -1,0 +1,43 @@
+# Evaluation configuration for Gemini Advisors Banking Strategy Agent
+# Supports built-in Agent Platform metrics and custom evaluators.
+
+metrics_to_run:
+  # 1. Response Quality (evaluates accuracy, completeness, and strategic depth)
+  - custom_response_quality
+  
+  # 2. Tool Use Quality (evaluates tool selection, parameter accuracy, search & filings query quality)
+  - tool_use_quality
+  
+  # 3. Safety (evaluates policy compliance, harmful content, and off-topic filtering)
+  - safety
+
+  # 4. Single Recommendation (enforces single best recommendation rule; fails option-menu language)
+  - single_recommendation
+
+custom_metrics:
+  # Local LLM-as-judge for response quality (see response_quality.py)
+  - name: custom_response_quality
+    custom_function_file: response_quality.py
+
+  # STUB: Custom evaluation metric - single_recommendation
+  # Enforces business rule: the final report must give one best recommendation, not a menu of options.
+  # Fails any response containing option-menu language such as "option a", "option b", "option 1:", or "alternatively, you could".
+  - name: single_recommendation
+    custom_function: |
+      def evaluate(instance):
+          """Fail any report that hands the user a menu instead of one decision."""
+          raw = instance.get("response", "")
+          text = raw.lower() if isinstance(raw, str) else str(raw).lower()
+          hits = [m for m in ("option a", "option b", "option 1:", "alternatively, you could")
+                  if m in text]
+          return {
+              "score": 0.0 if hits else 1.0,
+              "explanation": f"Option-menu language: {hits}" if hits else "Single recommendation.",
+          }
+
+
+  - name: agent_turn_count
+    custom_function: |
+      def evaluate(instance):
+          turns = (instance.get("agent_data") or {}).get("turns", [])
+          return {'score': len(turns)}

@@ -1,0 +1,66 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments & Virtual Environments
+.env
+!.env.example
+.venv/
+.venv*
+env/
+venv/
+ENV/
+
+# Node & Frontend
+**/node_modules/
+**/dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Unit test / coverage / linter caches
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.nox/
+.tox/
+
+# Logs & Temporary files
+*.log
+*.tmp
+/tmp
+.google-agents-cli/
+artifacts/traces/
+artifacts/grade_results/
+
+# Terraform
+.terraform/
+.terraform*
+*.tfstate
+*.tfstate.*
+
+# IDEs & System Files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Secrets and Credentials
+*.pem
+*-key.json
+credentials*.json
+my_env.tfvars
+
+# Eval run artifacts
+artifacts/
+**/artifacts/

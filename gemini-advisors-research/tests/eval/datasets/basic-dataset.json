@@ -1,0 +1,172 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "full_banking_brief",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Provide a comprehensive cross-border banking strategy research plan and memorandum for Gemini Advisors evaluating a dual-headquartered investment banking expansion across New York (US SEC/Fed), Frankfurt (EU ECB/DORA/CRR3), and Shanghai (China NFRA/PBOC/CSRC). Address capital adequacy, cross-border M&A advisory, and single strategic recommendation."
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "Gemini Advisors strategic memorandum outlining cross-border expansion across US, EU, and Chinese regulatory jurisdictions with a four-section plan, single strategic recommendation, Service Catalog, FAQ, and cited sources."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "kyc_aml_compliance_inquiry",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "What are the core KYC, customer due diligence, and beneficial ownership verification requirements for institutional clients transacting across US FinCEN rules, the EU 6th Anti-Money Laundering Directive (AMLA), and PBOC AML regulations?"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "Detailed comparison of US FinCEN CDD/BOI rules, EU AMLA / 6AMLD direct regulation thresholds, and People's Bank of China beneficial ownership disclosure rules for institutional banking clients."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "fraud_detection_transaction_monitoring",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Analyze institutional requirements for real-time algorithmic fraud detection and suspicious activity reporting (SAR / STR) under US BSA/Patriot Act, EU market abuse & AML regulations, and China NFRA transaction surveillance rules."
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "Analysis of multi-jurisdiction transaction monitoring thresholds, SAR filing requirements with FinCEN and EU FIUs, and NFRA/PBOC anti-fraud reporting mechanisms."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "eu_regulatory_dora_crr3",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "What is the strategic and capital impact of the EU Digital Operational Resilience Act (DORA) ICT third-party risk framework combined with CRR3 output floors on European investment banking operations?"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "Evaluation of DORA compliance deadlines, critical ICT third-party provider oversight by ESMA/EBA, and CRR3 Basel III output floor implementation impact on risk-weighted assets."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "china_regulatory_nfra_market_access",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Examine China's National Financial Regulatory Administration (NFRA) and CSRC market access frameworks for foreign majority-owned investment banking entities, QFI/RQFII quota regimes, and SAFE cross-border capital repatriation rules."
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "Assessment of NFRA license approvals for foreign securities ventures, CSRC regulatory filing requirements, and State Administration of Foreign Exchange (SAFE) cross-border remittance controls."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "vague_prompt_clarification",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Tell me about banking regulations and strategies."
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "The prompt is broad and ambiguous. The agent proposes a structured research plan clarifying whether the advisor seeks US, EU, or China regulatory analysis, M&A strategy, or capital adequacy modeling."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "off_topic_declined",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Can you provide a recipe for classic Italian lasagna and tell me the best temperature to bake artisan pizza?"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "I am Gemini Advisors' specialized Banking Strategy & Regulatory Intelligence assistant. I cannot assist with cooking recipes. Please provide inquiries related to investment banking strategy, multi-jurisdiction regulation (US, EU, China), capital adequacy, or financial filings."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "us_sec_basel_endgame",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "Assess the strategic balance sheet and trading desk implications of the US Federal Reserve's Basel III Endgame capital revisions alongside SEC cybersecurity disclosure requirements."
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "Comprehensive analysis of US Basel III Endgame credit and operational risk RWAs, fundamental review of the trading book (FRTB), and SEC Item 1.05 Form 8-K cyber incident disclosure mandates."
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
