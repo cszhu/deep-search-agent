@@ -10,22 +10,30 @@ def test_export_report_to_markdown_versioning():
     try:
         report_content = "# Banking Strategy Memorandum\n\n- Recommendation: Proceed with M&A."
 
-        # First export -> _v1.md
+        # First export -> _v1.md and _v1.html
         res1 = export_report_to_markdown(report_content, base_name="test_report", reports_dir_path=temp_dir)
         assert res1["status"] == "success"
         assert res1["version"] == 1
         assert res1["file_name"] == "test_report_v1.md"
+        assert res1["html_file_name"] == "test_report_v1.html"
         assert Path(res1["file_path"]).exists()
+        assert Path(res1["html_file_path"]).exists()
 
-        # Second export -> _v2.md
+        # Second export -> _v2.md and _v2.html
         res2 = export_report_to_markdown(report_content, base_name="test_report", reports_dir_path=temp_dir)
         assert res2["status"] == "success"
         assert res2["version"] == 2
         assert res2["file_name"] == "test_report_v2.md"
+        assert res2["html_file_name"] == "test_report_v2.html"
         assert Path(res2["file_path"]).exists()
+        assert Path(res2["html_file_path"]).exists()
 
         # Check content
         saved_text = Path(res2["file_path"]).read_text(encoding="utf-8")
         assert "Proceed with M&A" in saved_text
+
+        saved_html = Path(res2["html_file_path"]).read_text(encoding="utf-8")
+        assert "<h1" in saved_html
+        assert "Banking Strategy Memorandum" in saved_html
     finally:
         shutil.rmtree(temp_dir)
