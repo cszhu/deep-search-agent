@@ -41,11 +41,29 @@ else:
         os.environ.setdefault("GOOGLE_CLOUD_PROJECT", project_id or "")
     except Exception:
         pass
-    os.environ.setdefault("GOOGLE_CLOUD_LOCATION", "us-central1")
+    os.environ.setdefault("GOOGLE_CLOUD_LOCATION", "global")
     os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
 
 
+from dataclasses import dataclass, field
+from google.adk.models import Gemini
+from google.genai import types
+
 DEFAULT_MODEL = "gemini-3.7-flash"
+
+
+def create_model(model_name: str | None = None) -> Gemini:
+    name = model_name or os.getenv("MODEL_NAME", DEFAULT_MODEL)
+    return Gemini(
+        model=name,
+        retry_options=types.HttpRetryOptions(
+            attempts=5,
+            initial_delay=2.0,
+            max_delay=30.0,
+            exp_base=2.0,
+            http_status_codes=[429, 500, 503],
+        ),
+    )
 
 
 @dataclass
@@ -53,13 +71,17 @@ class ResearchConfiguration:
     """Configuration for research-related models and parameters.
 
     Attributes:
-        critic_model (str): Model for evaluation tasks (default: gemini-3.7-flash).
-        worker_model (str): Model for working/generation tasks (default: gemini-3.7-flash).
+        critic_model (Gemini): Model for evaluation tasks (default: gemini-3.7-flash with retries).
+        worker_model (Gemini): Model for working/generation tasks (default: gemini-3.7-flash with retries).
         max_search_iterations (int): Maximum search iterations allowed.
     """
 
-    critic_model: str = os.getenv("MODEL_NAME", DEFAULT_MODEL)
-    worker_model: str = os.getenv("MODEL_NAME", DEFAULT_MODEL)
+    critic_model: Gemini = field(
+        default_factory=lambda: create_model(os.getenv("MODEL_NAME", DEFAULT_MODEL))
+    )
+    worker_model: Gemini = field(
+        default_factory=lambda: create_model(os.getenv("MODEL_NAME", DEFAULT_MODEL))
+    )
     max_search_iterations: int = 5
 
 
