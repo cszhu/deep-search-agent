@@ -26,7 +26,7 @@ try:
 except Exception:
     pass
 
-os.environ.setdefault("GOOGLE_CLOUD_LOCATION", "us-central1")
+os.environ.setdefault("GOOGLE_CLOUD_LOCATION", "global")
 os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "True"
 
 from .agent import app

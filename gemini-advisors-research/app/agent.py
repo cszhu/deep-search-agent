@@ -43,6 +43,7 @@ from .mcp_server import (
     get_market_data,
     get_regulatory_capital_metrics,
 )
+from .markdown_exporter import export_report_to_markdown
 from .pdf_exporter import export_report_to_pdf
 
 
@@ -158,6 +159,18 @@ def citation_replacement_callback(
     )
     processed_report = re.sub(r"\s+([.,;:])", r"\1", processed_report)
     callback_context.state["final_report_with_citations"] = processed_report
+
+    # Automatically generate Markdown export with versioning (_v1, _v2, ...)
+    try:
+        md_res = export_report_to_markdown(
+            report_markdown=processed_report,
+            base_name="gemini_advisors_report",
+        )
+        callback_context.state["exported_md_path"] = md_res.get("file_path")
+        callback_context.state["exported_md_version"] = md_res.get("version")
+        logging.info(f"Markdown report successfully exported to: {md_res.get('file_path')}")
+    except Exception as e:
+        logging.warning(f"Markdown auto-export failed: {e}")
 
     # Automatically generate PDF export
     try:
@@ -293,6 +306,7 @@ plan_generator = LlmAgent(
     Current date: {datetime.datetime.now().strftime("%Y-%m-%d")}
     """,
     tools=[google_search],
+    output_key="research_plan",
 )
 
 
@@ -418,10 +432,10 @@ draft_report_composer = LlmAgent(
     Transform the research data into an executive-grade Banking Strategy Memorandum.
 
     INPUT DATA:
-    * Research Plan: `{research_plan}`
-    * Research Findings: `{section_researcher_findings}`
-    * Sources: `{sources}`
-    * Report Outline: `{report_sections}`
+    * Research Plan: `{research_plan?}`
+    * Research Findings: `{section_researcher_findings?}`
+    * Sources: `{sources?}`
+    * Report Outline: `{report_sections?}`
 
     ### MANDATORY SINGLE RECOMMENDATION CONSTRAINT:
     The report MUST decisively commit to exactly ONE optimal strategic recommendation.
@@ -553,7 +567,7 @@ root_agent = interactive_planner_agent
 _plugins = []
 _project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
 _dataset_id = os.environ.get("BQ_ANALYTICS_DATASET_ID", "adk_agent_analytics")
-_location = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+_location = os.environ.get("GOOGLE_CLOUD_LOCATION", "global")
 
 if _project_id:
     try:
